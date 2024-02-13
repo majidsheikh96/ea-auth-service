@@ -12,8 +12,8 @@ module.exports = {
         tsconfigRootDir: __dirname,
     },
     root: true,
-    rules:{
+    rules: {
         "no-console": "error",
-        "dot-notation": "error"
-    }
+        "dot-notation": "error",
+    },
 };
