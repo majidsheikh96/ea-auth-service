@@ -5,7 +5,7 @@ import authRouter from "./routes/auth";
 import "reflect-metadata";
 
 const app = express();
-
+app.use(express.json());
 app.get("/", async (_, res) => {
     return res.json({
         message: "Hello from auth service",
