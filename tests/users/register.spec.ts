@@ -30,6 +30,21 @@ describe("POST /auth/register", () => {
                 expect.stringContaining("json"),
             );
         });
+
+        it("Should persist the user in the databse", async () => {
+            // Arrage
+            // const userData = {
+            //     firstName: "John",
+            //     lastName: "Doe",
+            //     email: "john.doe@test.com",
+            //     password: "secret",
+            // };
+            // Act
+            // const response = await request(app)
+            //     .post("/auth/register")
+            //     .send(userData);
+            // Assert
+        });
     });
     describe("Fields are missing", () => {});
 });
