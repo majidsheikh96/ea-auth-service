@@ -13,7 +13,6 @@ describe("POST /auth/register", () => {
     });
 
     beforeEach(async () => {
-        // Database truncate
         await connection.dropDatabase();
         await connection.synchronize();
     });
@@ -50,16 +49,13 @@ describe("POST /auth/register", () => {
         });
 
         it("Should persist the user in the databse", async () => {
-            // Arrage
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@test.com",
                 password: "secret",
             };
-            // Act
             await request(app).post("/auth/register").send(userData);
-            // Assert
             const userRepository = connection.getRepository(User);
             const users = await userRepository.find();
             expect(users).toHaveLength(1);
@@ -69,18 +65,15 @@ describe("POST /auth/register", () => {
         });
 
         it("Should return an id of the created user", async () => {
-            // Arrange
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@test.com",
                 password: "secret",
             };
-            // Act
             const response = await request(app)
                 .post("/auth/register")
                 .send(userData);
-            // Assert
             expect(response.body.id).toBeDefined();
             expect(typeof response.body.id).toBe("number");
         });
@@ -95,12 +88,48 @@ describe("POST /auth/register", () => {
 
             await request(app).post("/auth/register").send(userData);
 
-            await request(app).post("/auth/register").send(userData);
-            // Assert
             const userRepository = connection.getRepository(User);
             const users = await userRepository.find();
             expect(users[0]).toHaveProperty("role");
             expect(users[0].role).toBe(Roles.CONSUMER || Roles.CREATOR);
+        });
+
+        it("should store hased password in the database", async () => {
+            const userData = {
+                firstName: "John",
+                lastName: "Doe",
+                email: "john.doe@test.com",
+                password: "secret",
+            };
+
+            await request(app).post("/auth/register").send(userData);
+
+            const userRepository = connection.getRepository(User);
+            const users = await userRepository.find();
+            expect(users[0].password).not.toBe(userData.password);
+            expect(users[0].password).toHaveLength(60);
+            expect(users[0].password).toMatch(/^\$2b\$\d+\$/);
+        });
+
+        it("should return 400 status code if email is already exists", async () => {
+            const userData = {
+                firstName: "John",
+                lastName: "Doe",
+                email: "john.doe@test.com",
+                password: "secret",
+            };
+
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({ ...userData, role: Roles.CONSUMER });
+
+            const response = await request(app)
+                .post("/auth/register")
+                .send(userData);
+
+            const users = await userRepository.find();
+
+            expect(response.statusCode).toBe(400);
+            expect(users).toHaveLength(1);
         });
     });
     describe("Fields are missing", () => {});
