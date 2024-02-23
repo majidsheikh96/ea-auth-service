@@ -4,6 +4,7 @@ import { Config } from ".";
 const logger = winston.createLogger({
     level: "info",
     defaultMeta: { service: "auth-service" },
+    silent: Config.NODE_ENV === "test",
     transports: [
         new winston.transports.File({
             level: "debug",

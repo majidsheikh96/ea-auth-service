@@ -12,8 +12,9 @@ export class UserService {
         const user = await this.userRepository.findOne({
             where: { email: email },
         });
+
         if (user) {
-            const err = createHttpError(400, "User already exists");
+            const err = createHttpError(400, "User already exists!");
             throw err;
         }
 
