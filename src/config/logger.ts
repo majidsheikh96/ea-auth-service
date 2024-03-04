@@ -3,6 +3,10 @@ import { Config } from ".";
 
 const logger = winston.createLogger({
     level: "info",
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+    ),
     defaultMeta: { service: "auth-service" },
     silent: Config.NODE_ENV === "test",
     transports: [
@@ -24,12 +28,7 @@ const logger = winston.createLogger({
             filename: "error.log",
             silent: Config.NODE_ENV === "test",
         }),
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-            ),
-        }),
+        new winston.transports.Console({}),
     ],
 });
 
