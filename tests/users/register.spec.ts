@@ -40,7 +40,7 @@ describe("POST /auth/register", () => {
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@test.com",
-                password: "secret12",
+                password: "secret",
             };
             const response = await request(app)
                 .post("/auth/register")
@@ -50,7 +50,7 @@ describe("POST /auth/register", () => {
             );
         });
 
-        it("Should persist the user in the databse", async () => {
+        it("Should persist the user in the database", async () => {
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
@@ -118,7 +118,7 @@ describe("POST /auth/register", () => {
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@test.com",
-                password: "secret12",
+                password: "secret",
             };
 
             const userRepository = connection.getRepository(User);
@@ -141,7 +141,7 @@ describe("POST /auth/register", () => {
                 firstName: "John",
                 lastName: "Doe",
                 email: "",
-                password: "secret12",
+                password: "secret",
             };
 
             const response = await request(app)
@@ -161,7 +161,7 @@ describe("POST /auth/register", () => {
                 firstName: "",
                 lastName: "Doe",
                 email: " john.doe@test.com",
-                password: "secret12",
+                password: "secret",
             };
 
             const response = await request(app)
@@ -181,7 +181,7 @@ describe("POST /auth/register", () => {
                 firstName: "John",
                 lastName: "",
                 email: " john.doe@test.com",
-                password: "secret12",
+                password: "secret",
             };
 
             const response = await request(app)
@@ -298,8 +298,8 @@ describe("POST /auth/register", () => {
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
-                email: "john.doetest",
-                password: "secret12",
+                email: "john.doe@test",
+                password: "secret",
             };
 
             const response = await request(app)

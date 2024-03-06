@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { RegisterUserRequest } from "../types";
+import { AuthRequest, LoginUserRequest, RegisterUserRequest } from "../types";
 import { UserService } from "../services/UserService";
 import { Logger } from "winston";
 import { validationResult } from "express-validator";
@@ -85,7 +85,7 @@ export class AuthController {
         }
     }
 
-    async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
+    async login(req: LoginUserRequest, res: Response, next: NextFunction) {
         // Validation
         const result = validationResult(req);
 
@@ -100,7 +100,6 @@ export class AuthController {
         try {
             // check if username (email) exists in database
             const user = await this.userService.findByEmail(email);
-
             if (!user) {
                 const error = createHttpError(
                     400,
@@ -160,5 +159,10 @@ export class AuthController {
             next(error);
             return;
         }
+    }
+
+    async self(req: AuthRequest, res: Response) {
+        const user = await this.userService.findById(Number(req.auth.sub));
+        res.status(200).json(user);
     }
 }
