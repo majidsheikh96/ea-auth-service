@@ -165,4 +165,57 @@ export class AuthController {
         const user = await this.userService.findById(Number(req.auth.sub));
         res.status(200).json({ ...user, password: undefined });
     }
+
+    async refresh(req: AuthRequest, res: Response, next: NextFunction) {
+        try {
+            const payload: JwtPayload = {
+                sub: req.auth.sub,
+                role: req.auth.role,
+            };
+
+            // Generate accessToken
+            const accessToken = this.tokenService.generateAccessToken(payload);
+
+            const user = await this.userService.findById(Number(req.auth.sub));
+
+            if (!user) {
+                const error = createHttpError(
+                    400,
+                    "User with the token could not find",
+                );
+                return next(error);
+            }
+
+            const newRefreshToken =
+                await this.tokenService.persistRefreshToken(user);
+
+            // Delete old refresh token
+            await this.tokenService.deleteRefreshToken(Number(req.auth.id));
+
+            const refreshToken = this.tokenService.generateRefreshToken({
+                ...payload,
+                id: newRefreshToken.id,
+            });
+
+            res.cookie("accessToken", accessToken, {
+                domain: "localhost",
+                sameSite: "strict",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60, // 1h
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                domain: "localhost",
+                sameSite: "strict",
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
+            });
+
+            this.logger.info("User has been logged in", { id: user.id });
+
+            res.json({ id: user.id });
+        } catch (error) {
+            return next(error);
+        }
+    }
 }
