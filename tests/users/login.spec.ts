@@ -65,6 +65,8 @@ describe("POST /auth/login", () => {
 
         it("should return a 400 status code for incorrect email or password", async () => {
             const userData = {
+                firstName: "John",
+                lastName: "Doe",
                 email: "john.doe@test.com",
                 password: "secret12",
             };
