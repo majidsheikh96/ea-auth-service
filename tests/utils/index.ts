@@ -8,7 +8,7 @@ export const truncateTables = async (connection: DataSource) => {
     }
 };
 
-export const isJWT = (token: string) => {
+export const isJwt = (token: string) => {
     const parts = token.split(".");
 
     if (parts.length !== 3) {
