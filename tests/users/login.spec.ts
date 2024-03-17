@@ -2,7 +2,10 @@ import request from "supertest";
 import app from "../../src/app";
 import { AppDataSource } from "../../src/config/data-source";
 import { DataSource } from "typeorm";
-import { isJWT } from "../utils";
+import { isJwt } from "../utils";
+import bcrypt from "bcryptjs";
+import { User } from "../../src/entity/User";
+import { Roles } from "../../src/constants";
 
 describe("POST /auth/login", () => {
     let connection: DataSource;
@@ -19,7 +22,7 @@ describe("POST /auth/login", () => {
     afterAll(async () => await connection.destroy());
 
     describe("Given all fields", () => {
-        it("should return the access token and refresh token inside cookie", async () => {
+        it("should return the access token and refresh token inside a cookie", async () => {
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
@@ -27,7 +30,14 @@ describe("POST /auth/login", () => {
                 password: "secret12",
             };
 
-            await request(app).post("/auth/register").send(userData);
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...userData,
+                password: hashedPassword,
+                role: Roles.CONSUMER,
+            });
 
             const response = await request(app)
                 .post("/auth/login")
@@ -49,17 +59,26 @@ describe("POST /auth/login", () => {
             expect(accessToken).toBeDefined();
             expect(refreshToken).toBeDefined();
             // Assuming you have a function to validate JWTs
-            expect(isJWT(accessToken as string)).toBeTruthy();
-            expect(isJWT(refreshToken as string)).toBeTruthy();
+            expect(isJwt(accessToken as string)).toBeTruthy();
+            expect(isJwt(refreshToken as string)).toBeTruthy();
         });
 
         it("should return a 400 status code for incorrect email or password", async () => {
             const userData = {
+                firstName: "John",
+                lastName: "Doe",
                 email: "john.doe@test.com",
                 password: "secret12",
             };
-            // Register the user first
-            await request(app).post("/auth/register").send(userData);
+
+            const hashedPassword = await bcrypt.hash(userData.password, 10);
+
+            const userRepository = connection.getRepository(User);
+            await userRepository.save({
+                ...userData,
+                password: hashedPassword,
+                role: Roles.CONSUMER,
+            });
 
             // Test with incorrect email
             const invalidEmailResponse = await request(app)

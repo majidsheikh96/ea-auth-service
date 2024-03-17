@@ -4,7 +4,7 @@ import { AppDataSource } from "../../src/config/data-source";
 import { DataSource } from "typeorm";
 import { User } from "../../src/entity/User";
 import { Roles } from "../../src/constants";
-import { isJWT } from "../utils";
+import { isJwt } from "../utils";
 import { RefreshToken } from "../../src/entity/RefreshToken";
 
 describe("POST /auth/register", () => {
@@ -96,7 +96,7 @@ describe("POST /auth/register", () => {
             expect(users[0].role).toBe(Roles.CONSUMER || Roles.CREATOR);
         });
 
-        it("should store hased password in the database", async () => {
+        it("should store hashed password in the database", async () => {
             const userData = {
                 firstName: "John",
                 lastName: "Doe",
@@ -110,7 +110,7 @@ describe("POST /auth/register", () => {
             const users = await userRepository.find();
             expect(users[0].password).not.toBe(userData.password);
             expect(users[0].password).toHaveLength(60);
-            expect(users[0].password).toMatch(/^\$2b\$\d+\$/);
+            expect(users[0].password).toMatch(/^\$2[a|b]\$\d+\$/);
         });
 
         it("should return 400 status code if email is already exists", async () => {
@@ -245,8 +245,8 @@ describe("POST /auth/register", () => {
             expect(accessToken).toBeDefined();
             expect(refreshToken).toBeDefined();
 
-            expect(isJWT(accessToken as string)).toBeTruthy();
-            expect(isJWT(refreshToken as string)).toBeTruthy();
+            expect(isJwt(accessToken as string)).toBeTruthy();
+            expect(isJwt(refreshToken as string)).toBeTruthy();
         });
 
         it("should store refresh token in the database", async () => {
